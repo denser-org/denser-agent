@@ -1,5 +1,7 @@
 # Denser Agent
 
+[![Video Demo](https://img.shields.io/badge/YouTube-Video%20Demo-red?logo=youtube)](https://www.youtube.com/watch?v=wb83gPMgzkM)
+
 A multi-agent system built on MCP (Model Context Protocol) architecture providing specialized AI assistants with database analytics, weather information, and meeting scheduling capabilities.
 
 ## Quick Start
