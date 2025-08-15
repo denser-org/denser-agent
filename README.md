@@ -1,6 +1,6 @@
 # Denser Agent
 
-[![Video Demo](https://img.shields.io/badge/YouTube-Video%20Demo-red?logo=youtube)](https://www.youtube.com/watch?v=wb83gPMgzkM)
+[![Video Demo](https://img.shields.io/badge/YouTube-Video%20Demo-red?logo=youtube)](https://www.youtube.com/watch?v=3_KledHS-WM)
 
 A multi-agent system built on MCP (Model Context Protocol) architecture providing specialized AI assistants with database analytics, weather information, and meeting scheduling capabilities.
 
@@ -62,6 +62,9 @@ cd tools/database/postgres && python setup_postgres.py
 - **PostgreSQL integration** with sample data (customers, products, orders)
 - **SQL query execution** with automatic chart generation
 - **Analytics queries** optimized for visualization
+
+![Database Analytics Demo](postgres.png)
+*AI agent handling a database analytics query with automatic chart generation*
 
 ```bash
 cd tools/database/postgres
