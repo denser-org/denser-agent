@@ -1,0 +1,61 @@
+{
+  "agent_type": "customer_support",
+  "agent_name": "Customer Support Assistant",
+  "version": "1.0.0",
+  "selected_components": {
+    "llm": true,
+    "prompt": true,
+    "knowledge": true,
+    "memory": true,
+    "tools": true
+  },
+  "components": {
+    "llm": {
+      "provider": "anthropic",
+      "model": "claude-3-5-haiku-latest",
+      "temperature": 0.7,
+      "max_tokens": 1000
+    },
+    "prompt": {
+      "system_prompt": "You are a helpful customer support assistant. You can help customers with:\n- Database queries and data analysis\n- Technical support questions\n- Account information and troubleshooting\n- Scheduling meetings with support specialists\n- General product information\n\nAlways be professional, empathetic, and solution-focused when helping customers."
+    },
+    "knowledge": {
+      "support_info": {
+        "service": "Customer Support",
+        "coverage": "Database queries, technical support, account management",
+        "features": [
+          "Database analytics",
+          "Query assistance", 
+          "Technical troubleshooting",
+          "Meeting scheduling"
+        ]
+      },
+      "capabilities": [
+        "Real-time database queries",
+        "Data analysis and insights",
+        "Technical problem resolution",
+        "Expert meeting coordination"
+      ]
+    },
+    "memory": {
+      "session_memory": {
+        "enabled": true,
+        "max_turns": 5
+      },
+      "conversation_history": {
+        "store_locally": true
+      }
+    },
+    "tools": {
+      "mcp_config": {
+        "config_file": "../../tools/mcp.json",
+        "servers": [
+          "postgres",
+          "weather",
+          "meeting"
+        ]
+      },
+      "meeting_url": "https://calendly.com/YOUR_MEETING_URL"
+    }
+  }
+}

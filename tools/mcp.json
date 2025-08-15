@@ -1,0 +1,45 @@
+{
+  "mcpServers": {
+    "weather": {
+      "transport": {
+        "type": "http",
+        "baseUrl": "http://localhost:8001",
+        "endpoints": {
+          "listTools": "/mcp/tools",
+          "callTool": "/mcp/call_tool",
+          "health": "/health"
+        }
+      },
+      "description": "Weather information and forecasting tools"
+    },
+    "postgres": {
+      "transport": {
+        "type": "http",
+        "baseUrl": "http://localhost:8002",
+        "endpoints": {
+          "listTools": "/mcp/tools",
+          "callTool": "/mcp/call_tool",
+          "health": "/health"
+        }
+      },
+      "description": "PostgreSQL database analytics and query tools"
+    },
+    "meeting": {
+      "transport": {
+        "type": "http",
+        "baseUrl": "http://localhost:8004",
+        "endpoints": {
+          "listTools": "/mcp/tools",
+          "callTool": "/mcp/call_tool",
+          "health": "/health"
+        }
+      },
+      "description": "Meeting scheduling and calendar tools"
+    }
+  },
+  "client": {
+    "name": "denser-agents",
+    "version": "1.0.0",
+    "capabilities": ["tools", "multi-server"]
+  }
+}

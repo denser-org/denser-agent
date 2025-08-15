@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="pageTitle">Denser Agent - Chatbot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-gradient, linear-gradient(135deg, #4F7DF3 0%, #3d6bcc 100%));
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        :root {
+            --primary-color: #4F7DF3;
+            --primary-hover: #3d6bcc;
+            --agent-emoji: '🤖';
+            --agent-name: 'Denser Agent';
+            --agent-description: 'How can I help you today?';
+        }
+
+        .main-container {
+            display: flex;
+            height: 100vh;
+            gap: 16px;
+            padding: 16px;
+            justify-content: center;
+        }
+
+        .chat-container {
+            flex: 1;
+            max-width: 900px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            background: var(--bg-gradient, linear-gradient(135deg, #4F7DF3, #3d6bcc));
+            color: white;
+            border-bottom: 1px solid #e0e0e0;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-avatar {
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .header-info h1 {
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            margin: 0;
+        }
+
+        .header-info p {
+            font-size: 14px;
+            color: rgba(255,255,255,0.8);
+            margin: 2px 0 0 0;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            background: white;
+        }
+
+        .message {
+            display: flex;
+            flex-direction: column;
+            animation: fadeInUp 0.3s ease-out;
+        }
+
+        .message.user {
+            align-items: flex-end;
+        }
+
+        .message.bot {
+            align-items: flex-start;
+        }
+
+        .message-content {
+            padding: 12px 16px;
+            border-radius: 18px;
+            max-width: 80%;
+            line-height: 1.4;
+            font-size: 14px;
+            word-wrap: break-word;
+        }
+
+        /* Markdown styles */
+        .message-content h1 {
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+            color: #2c3e50;
+        }
+
+        .message-content h2 {
+            font-size: 1.2rem;
+            margin: 1rem 0 0.5rem 0;
+            color: #34495e;
+        }
+
+        .message-content p {
+            margin: 0.5rem 0;
+        }
+
+        .message-content ul {
+            margin: 0.5rem 0;
+            padding-left: 1.5rem;
+        }
+
+        .message-content li {
+            margin: 0.25rem 0;
+        }
+
+        .message-content em {
+            color: #666;
+            font-style: italic;
+        }
+
+        .message.user .message-content {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .message.bot .message-content {
+            background: #f0f0f0;
+            color: #1a1a1a;
+        }
+
+        .quick-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .quick-btn {
+            background: var(--primary-color);
+            border: none;
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 12px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .quick-btn:hover {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        .chat-input-container {
+            padding: 16px 20px 20px;
+            border-top: 1px solid #e0e0e0;
+            background: white;
+        }
+
+        .chat-input-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            background: #f5f5f5;
+            border-radius: 24px;
+            padding: 8px 16px;
+        }
+
+        .chat-input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            padding: 8px 0;
+            font-size: 14px;
+            outline: none;
+            color: #1a1a1a;
+        }
+
+        .chat-input::placeholder {
+            color: #999;
+        }
+
+        .send-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .send-btn:hover:not(:disabled) {
+            background: var(--primary-hover);
+            transform: scale(1.05);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #6c757d;
+            font-style: italic;
+            font-size: 0.9rem;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 3px;
+        }
+
+        .typing-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: #6c757d;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        .status-message {
+            background: #e3f2fd;
+            border: 1px solid #2196f3;
+            border-radius: 10px;
+            padding: 0.75rem;
+            margin: 0.5rem 0;
+            color: #1976d2;
+            font-size: 0.9rem;
+        }
+
+        .error-message {
+            background: #ffebee;
+            border: 1px solid #f44336;
+            border-radius: 10px;
+            padding: 0.75rem;
+            margin: 0.5rem 0;
+            color: #c62828;
+            font-size: 0.9rem;
+        }
+
+        .success-message {
+            background: #e8f5e8;
+            border: 1px solid #4caf50;
+            border-radius: 10px;
+            padding: 0.75rem;
+            margin: 0.5rem 0;
+            color: #2e7d32;
+            font-size: 0.9rem;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-8px); }
+        }
+
+        /* Booking Form Styles */
+        .booking-form {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 1rem;
+            margin: 0.3rem 0;
+            border: 1px solid #e9ecef;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        }
+        
+        .booking-form h3 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+            text-align: center;
+            border-bottom: 1px solid var(--primary-color);
+            padding-bottom: 0.4rem;
+        }
+        
+        .form-group {
+            margin-bottom: 0.8rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.3rem;
+            font-weight: 500;
+            color: #495057;
+            font-size: 0.8rem;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            transition: border-color 0.2s ease;
+            background: white;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 40px;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 0.8rem;
+            margin-bottom: 0.8rem;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+            margin-bottom: 0;
+        }
+        
+        .form-buttons {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-top: 1rem;
+            padding-top: 0.8rem;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        .submit-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 0.5rem 1.5rem;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .submit-btn:hover:not(:disabled) {
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+        
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .cancel-btn {
+            background: transparent;
+            color: #6c757d;
+            border: 1px solid #6c757d;
+            border-radius: 20px;
+            padding: 0.5rem 1.5rem;
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .cancel-btn:hover {
+            background: #6c757d;
+            color: white;
+        }
+
+
+        @media (max-width: 768px) {
+            .chat-container {
+                width: 95%;
+                height: 90vh;
+            }
+            
+            .chat-header {
+                padding: 1rem;
+            }
+            
+            .chat-header h1 {
+                font-size: 1.3rem;
+            }
+            
+            .message-content {
+                max-width: 85%;
+                font-size: 0.9rem;
+            }
+            
+            .booking-form {
+                padding: 0.8rem;
+            }
+            
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+            
+            .form-row .form-group {
+                margin-bottom: 0.8rem;
+            }
+            
+            .form-buttons {
+                flex-direction: column;
+                gap: 0.4rem;
+            }
+            
+            .submit-btn,
+            .cancel-btn {
+                width: 100%;
+                padding: 0.6rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- Left Panel: Chat -->
+        <div class="chat-container">
+            <div class="chat-header">
+                <div class="header-avatar" id="headerAvatar">🤖</div>
+                <div class="header-info">
+                    <h1 id="agentName">Denser Agent</h1>
+                    <p id="agentDescription">How can I help you today?</p>
+                </div>
+            </div>
+
+            <div class="chat-messages" id="chatMessages">
+                <div class="message bot">
+                    <div class="message-content" id="initialMessage">
+                        Welcome! I'm your assistant. How can I help you today?
+                    </div>
+                </div>
+            </div>
+
+            <div class="chat-input-container">
+                <div class="chat-input-row">
+                    <input 
+                        type="text" 
+                        class="chat-input" 
+                        id="chatInput" 
+                        placeholder="Ask me anything..."
+                        onkeypress="handleKeyPress(event)"
+                    >
+                    <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+                        →
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        let isTyping = false;
+        let conversationHistory = [];
+        let agentConfig = null;
+        
+        // Initialize agent configuration from server
+        async function initializeAgent() {
+            try {
+                // Detect agent type from URL path or default config
+                const response = await fetch('/api/config');
+                if (response.ok) {
+                    agentConfig = await response.json();
+                    updateAgentUI(agentConfig);
+                }
+            } catch (error) {
+                console.log('Using default agent configuration');
+                // Use default configuration if agent-specific config not available
+                agentConfig = {
+                    agent_name: 'Denser Agent',
+                    agent_emoji: '🤖',
+                    agent_description: 'How can I help you today?',
+                    primary_color: '#4F7DF3'
+                };
+                updateAgentUI(agentConfig);
+            }
+        }
+        
+        function updateAgentUI(config) {
+            // Update page title
+            document.getElementById('pageTitle').textContent = config.agent_name || 'Denser Agent';
+            
+            // Update header
+            document.getElementById('headerAvatar').textContent = config.agent_emoji || '🤖';
+            document.getElementById('agentName').textContent = config.agent_name || 'Denser Agent';
+            document.getElementById('agentDescription').textContent = config.agent_description || 'How can I help you today?';
+            
+            // Update CSS variables for theming
+            if (config.primary_color) {
+                document.documentElement.style.setProperty('--primary-color', config.primary_color);
+                document.documentElement.style.setProperty('--primary-hover', config.primary_hover || config.primary_color);
+            }
+            
+            if (config.background_gradient) {
+                document.documentElement.style.setProperty('--bg-gradient', config.background_gradient);
+            }
+            
+            // Update initial message
+            if (config.initial_message) {
+                document.getElementById('initialMessage').innerHTML = config.initial_message;
+            }
+            
+            // Update input placeholder
+            if (config.input_placeholder) {
+                document.getElementById('chatInput').placeholder = config.input_placeholder;
+            }
+        }
+        
+
+        // Real API call to backend with conversation history
+        async function callChatAPI(newMessage) {
+            try {
+                // Add new user message to history
+                conversationHistory.push({role: 'user', content: newMessage});
+                
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ messages: conversationHistory })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                
+                // Add bot response to history (if successful and not a form trigger)
+                if (result.success && result.message && 
+                    !result.message.includes('show_') && 
+                    !result.message.includes('<div class="quick-buttons">')) {
+                    conversationHistory.push({role: 'assistant', content: result.message});
+                }
+                
+                return result;
+            } catch (error) {
+                console.error('API call error:', error);
+                return {
+                    success: false,
+                    message: `Network error: ${error.message}. Please try again.`
+                };
+            }
+        }
+
+        function sendQuickMessage(message) {
+            addMessage(message, 'user');
+            handleBotResponse(message);
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (!message || isTyping) return;
+            
+            input.value = '';
+            addMessage(message, 'user');
+            handleBotResponse(message);
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        function addMessage(content, sender, chartData = null) {
+            console.log('addMessage called with chartData:', chartData);
+            
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            
+            // Check if content should be rendered as markdown
+            let renderedContent = content;
+            if (sender === 'bot' && !content.includes('<div class=')) {
+                // Only parse as markdown if it's bot content and doesn't contain HTML elements
+                console.log('Original content:', content);
+                renderedContent = marked.parse(content);
+                console.log('Rendered markdown:', renderedContent);
+            }
+            
+            let messageHTML = `<div class="message-content">${renderedContent}</div>`;
+            let chartId = null;
+            
+            // Add chart if chart data is provided
+            if (chartData && sender === 'bot') {
+                console.log('Adding chart container for:', chartData);
+                chartId = 'chart-' + Date.now();
+                messageHTML += `
+                    <div style="margin-top: 16px; background: white; padding: 16px; border-radius: 8px; border: 1px solid #e0e0e0;">
+                        <canvas id="${chartId}" width="400" height="200"></canvas>
+                    </div>
+                `;
+            }
+            
+            messageDiv.innerHTML = messageHTML;
+            messagesContainer.appendChild(messageDiv);
+            
+            // Render chart if chart data exists
+            if (chartData && sender === 'bot' && chartId) {
+                console.log('Calling renderChart with:', chartId, chartData);
+                setTimeout(() => renderChart(chartId, chartData), 100);
+            }
+            
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        
+        function renderChart(canvasId, chartData) {
+            console.log('renderChart called with:', canvasId, chartData);
+            
+            const ctx = document.getElementById(canvasId);
+            console.log('Canvas element found:', ctx);
+            
+            if (!ctx) {
+                console.error('Canvas element not found:', canvasId);
+                return;
+            }
+            
+            try {
+                console.log('Creating chart with data:', chartData);
+                const chart = new Chart(ctx, {
+                    type: chartData.type || 'bar',
+                    data: chartData.data,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: !!chartData.title,
+                                text: chartData.title
+                            },
+                            legend: {
+                                display: chartData.type !== 'pie'
+                            }
+                        },
+                        scales: chartData.type === 'pie' ? {} : {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+                console.log('Chart created successfully:', chart);
+            } catch (error) {
+                console.error('Error creating chart:', error);
+            }
+        }
+
+        function showTyping() {
+            const messagesContainer = document.getElementById('chatMessages');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message bot';
+            typingDiv.id = 'typing-indicator';
+            
+            typingDiv.innerHTML = `
+                <div class="message-content">
+                    <div class="typing-indicator">
+                        <span>Thinking</span>
+                        <div class="typing-dots">
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            messagesContainer.appendChild(typingDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function hideTyping() {
+            const typingElement = document.getElementById('typing-indicator');
+            if (typingElement) {
+                typingElement.remove();
+            }
+        }
+
+        async function handleBotResponse(userMessage) {
+            if (isTyping) return;
+            
+            isTyping = true;
+            document.getElementById('sendBtn').disabled = true;
+            
+            showTyping();
+            
+            try {
+                // Call real backend API
+                const response = await callChatAPI(userMessage);
+                
+                hideTyping();
+                
+                // Check if we should show forms (for restaurant agent)
+                if (response.message === 'show_booking_form') {
+                    showBookingForm();
+                } else if (response.message === 'show_availability_form') {
+                    showAvailabilityForm();
+                } else {
+                    // Add response message
+                    let messageContent = response.message;
+                    
+                    // Check if response includes chart data
+                    let chartData = response.chart_data || null;
+                    
+                    // Debug logging
+                    console.log('Full response:', response);
+                    console.log('Chart data received:', chartData);
+                    
+                    addMessage(messageContent, 'bot', chartData);
+                }
+                
+            } catch (error) {
+                hideTyping();
+                addMessage(`<div class="error-message">Sorry, I'm having trouble connecting. Please try again.</div>`, 'bot');
+            }
+            
+            isTyping = false;
+            document.getElementById('sendBtn').disabled = false;
+            document.getElementById('chatInput').focus();
+        }
+
+        // Form functions (for restaurant agent compatibility)
+        function showAvailabilityForm() {
+            if (!agentConfig || !agentConfig.supports_forms) {
+                addMessage('Availability checking is not supported for this agent type.', 'bot');
+                return;
+            }
+            
+            const formHTML = `
+                <div class="booking-form">
+                    <h3>📅 Check Table Availability</h3>
+                    <form id="availabilityForm">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="availabilityDate">Date:</label>
+                                <input type="date" id="availabilityDate" name="reservation_date" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="availabilityTime">Time:</label>
+                                <input type="time" id="availabilityTime" name="reservation_time" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="availabilityPartySize">Party Size:</label>
+                            <select id="availabilityPartySize" name="party_size" required>
+                                <option value="">Select</option>
+                                <option value="1">1 person</option>
+                                <option value="2">2 people</option>
+                                <option value="3">3 people</option>
+                                <option value="4">4 people</option>
+                                <option value="5">5 people</option>
+                                <option value="6">6 people</option>
+                                <option value="7">7 people</option>
+                                <option value="8">8 people</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-buttons">
+                            <button type="submit" class="submit-btn">Check Availability</button>
+                            <button type="button" class="cancel-btn" onclick="cancelAvailabilityForm()">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            `;
+            
+            addMessage(formHTML, 'bot');
+            
+            // Set minimum date to today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('availabilityDate').min = today;
+            
+            // Add form submit handler
+            document.getElementById('availabilityForm').addEventListener('submit', handleAvailabilitySubmit);
+        }
+
+        function showBookingForm() {
+            if (!agentConfig || !agentConfig.supports_forms) {
+                addMessage('Booking is not supported for this agent type.', 'bot');
+                return;
+            }
+            
+            const formHTML = `
+                <div class="booking-form">
+                    <h3>🍽️ Make a Reservation</h3>
+                    <form id="reservationForm">
+                        <div class="form-group">
+                            <label for="customerName">Full Name:</label>
+                            <input type="text" id="customerName" name="customer_name" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="email">Email:</label>
+                            <input type="email" id="email" name="email" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="phone">Phone:</label>
+                            <input type="tel" id="phone" name="phone" required>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="partySize">Party Size:</label>
+                                <select id="partySize" name="party_size" required>
+                                    <option value="">Select</option>
+                                    <option value="1">1 person</option>
+                                    <option value="2">2 people</option>
+                                    <option value="3">3 people</option>
+                                    <option value="4">4 people</option>
+                                    <option value="5">5 people</option>
+                                    <option value="6">6 people</option>
+                                    <option value="7">7 people</option>
+                                    <option value="8">8 people</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="reservationDate">Date:</label>
+                                <input type="date" id="reservationDate" name="reservation_date" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="reservationTime">Time:</label>
+                                <input type="time" id="reservationTime" name="reservation_time" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="specialRequests">Special Requests (optional):</label>
+                            <textarea id="specialRequests" name="special_requests" rows="2" placeholder="Window table, birthday celebration, etc."></textarea>
+                        </div>
+                        
+                        <div class="form-buttons">
+                            <button type="submit" class="submit-btn">Book Table</button>
+                            <button type="button" class="cancel-btn" onclick="cancelBookingForm()">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            `;
+            
+            addMessage(formHTML, 'bot');
+            
+            // Set minimum date to today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('reservationDate').min = today;
+            
+            // Add form submit handler
+            document.getElementById('reservationForm').addEventListener('submit', handleFormSubmit);
+        }
+
+        // Convert form data to natural language and use chat API  
+        async function createReservation(formData) {
+            const message = `Create a reservation for ${formData.customer_name} (${formData.email}, ${formData.phone}) for ${formData.party_size} people on ${formData.reservation_date} at ${formData.reservation_time}${formData.special_requests ? '. Special requests: ' + formData.special_requests : ''}`;
+            return await callChatAPI(message);
+        }
+
+        // Convert form data to natural language and use chat API
+        async function checkAvailability(formData) {
+            const message = `Check table availability for ${formData.party_size} people on ${formData.reservation_date} at ${formData.reservation_time}`;
+            return await callChatAPI(message);
+        }
+
+        async function handleFormSubmit(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(event.target);
+            const reservationData = {
+                customer_name: formData.get('customer_name'),
+                email: formData.get('email'),
+                phone: formData.get('phone'),
+                party_size: formData.get('party_size'),
+                reservation_date: formData.get('reservation_date'),
+                reservation_time: formData.get('reservation_time'),
+                special_requests: formData.get('special_requests') || ''
+            };
+            
+            // Show loading
+            const submitBtn = document.querySelector('.submit-btn');
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = 'Booking...';
+            submitBtn.disabled = true;
+            
+            try {
+                const response = await createReservation(reservationData);
+                
+                // Hide the form
+                const formElement = document.getElementById('reservationForm').closest('.message');
+                if (formElement) {
+                    formElement.style.display = 'none';
+                }
+                
+                // Show result
+                if (response.success) {
+                    addMessage(`<div class="success-message">${response.message}</div>`, 'bot');
+                } else {
+                    addMessage(`<div class="error-message">${response.message}</div>`, 'bot');
+                }
+                
+            } catch (error) {
+                addMessage(`<div class="error-message">Sorry, there was an error booking your table. Please try again.</div>`, 'bot');
+            } finally {
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            }
+        }
+
+        async function handleAvailabilitySubmit(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(event.target);
+            const availabilityData = {
+                reservation_date: formData.get('reservation_date'),
+                reservation_time: formData.get('reservation_time'),
+                party_size: formData.get('party_size')
+            };
+            
+            // Show loading
+            const submitBtn = document.querySelector('#availabilityForm .submit-btn');
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = 'Checking...';
+            submitBtn.disabled = true;
+            
+            try {
+                const response = await checkAvailability(availabilityData);
+                
+                // Hide the form
+                const formElement = document.getElementById('availabilityForm').closest('.message');
+                if (formElement) {
+                    formElement.style.display = 'none';
+                }
+                
+                // Show result
+                if (response.success) {
+                    // Check if response should be rendered as markdown
+                    let messageContent = response.message;
+                    if (response.format === 'markdown') {
+                        messageContent = marked.parse(response.message);
+                    }
+                    addMessage(`<div class="success-message">${messageContent}</div>`, 'bot');
+                } else {
+                    addMessage(`<div class="error-message">${response.message}</div>`, 'bot');
+                }
+                
+            } catch (error) {
+                addMessage(`<div class="error-message">Sorry, there was an error checking availability. Please try again.</div>`, 'bot');
+            } finally {
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            }
+        }
+
+        function cancelAvailabilityForm() {
+            const formElement = document.getElementById('availabilityForm').closest('.message');
+            if (formElement) {
+                formElement.style.display = 'none';
+            }
+            addMessage('Availability check cancelled. How else can I help you?', 'bot');
+        }
+
+        function cancelBookingForm() {
+            const formElement = document.getElementById('reservationForm').closest('.message');
+            if (formElement) {
+                formElement.style.display = 'none';
+            }
+            addMessage('Booking cancelled. How else can I help you?', 'bot');
+        }
+
+        // Initialize agent on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeAgent();
+            document.getElementById('chatInput').focus();
+        });
+    </script>
+</body>
+</html>
